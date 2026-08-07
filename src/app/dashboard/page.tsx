@@ -1354,7 +1354,7 @@ export default function DashboardPage() {
                 <select
                   value={selectedRoom}
                   onChange={(e) => setSelectedRoom(e.target.value)}
-                  className="w-full border border-slate-300 rounded-xl p-2.5 bg-slate-50"
+                  className="w-full border border-slate-300 rounded-xl p-2.5 bg-white text-slate-900 font-semibold"
                   required
                 >
                   {rooms.length === 0 ? (
@@ -1377,7 +1377,7 @@ export default function DashboardPage() {
                   value={bookingTitle}
                   onChange={(e) => setBookingTitle(e.target.value)}
                   placeholder="เช่น การประชุมคณะกรรมการจัดทำแผนพัฒนาจังหวัด"
-                  className="w-full border border-slate-300 rounded-xl p-2.5"
+                  className="w-full border border-slate-300 rounded-xl p-2.5 text-slate-900 font-semibold bg-white"
                 />
               </div>
 
@@ -1389,7 +1389,7 @@ export default function DashboardPage() {
                     required
                     value={bookingDate}
                     onChange={(e) => setBookingDate(e.target.value)}
-                    className="w-full border border-slate-300 rounded-xl p-2.5"
+                    className="w-full border border-slate-300 rounded-xl p-2.5 text-slate-900 font-semibold bg-white"
                   />
                 </div>
                 <div>
@@ -1399,7 +1399,7 @@ export default function DashboardPage() {
                     required
                     value={startTime}
                     onChange={(e) => setStartTime(e.target.value)}
-                    className="w-full border border-slate-300 rounded-xl p-2.5"
+                    className="w-full border border-slate-300 rounded-xl p-2.5 text-slate-900 font-semibold bg-white"
                   />
                 </div>
                 <div>
@@ -1409,7 +1409,7 @@ export default function DashboardPage() {
                     required
                     value={endTime}
                     onChange={(e) => setEndTime(e.target.value)}
-                    className="w-full border border-slate-300 rounded-xl p-2.5"
+                    className="w-full border border-slate-300 rounded-xl p-2.5 text-slate-900 font-semibold bg-white"
                   />
                 </div>
               </div>
@@ -1460,7 +1460,7 @@ export default function DashboardPage() {
                   value={vipList}
                   onChange={(e) => setVipList(e.target.value)}
                   placeholder="เช่น ผู้ว่าราชการจังหวัดกำแพงเพชร"
-                  className="w-full border border-slate-300 rounded-xl p-2.5"
+                  className="w-full border border-slate-300 rounded-xl p-2.5 text-slate-900 font-semibold bg-white"
                 />
               </div>
 
@@ -1471,7 +1471,7 @@ export default function DashboardPage() {
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   placeholder="ระบุความต้องการการจัดห้องหรืออุปกรณ์เพิ่มเติม"
-                  className="w-full border border-slate-300 rounded-xl p-2.5"
+                  className="w-full border border-slate-300 rounded-xl p-2.5 text-slate-900 font-semibold bg-white"
                 />
               </div>
 
@@ -1521,7 +1521,7 @@ export default function DashboardPage() {
                   value={newRoomName}
                   onChange={(e) => setNewRoomName(e.target.value)}
                   placeholder="เช่น ห้องประชุมทรงทอง 1"
-                  className="w-full border border-slate-300 rounded-xl p-2.5"
+                  className="w-full border border-slate-300 rounded-xl p-2.5 text-slate-900 font-semibold bg-white"
                 />
               </div>
 
@@ -1532,7 +1532,7 @@ export default function DashboardPage() {
                     type="number"
                     value={newRoomCapacity}
                     onChange={(e) => setNewRoomCapacity(Number(e.target.value))}
-                    className="w-full border border-slate-300 rounded-xl p-2.5"
+                    className="w-full border border-slate-300 rounded-xl p-2.5 text-slate-900 font-semibold bg-white"
                   />
                 </div>
                 <div>
@@ -1542,7 +1542,7 @@ export default function DashboardPage() {
                     value={newRoomFloor}
                     onChange={(e) => setNewRoomFloor(e.target.value)}
                     placeholder="ชั้น 2"
-                    className="w-full border border-slate-300 rounded-xl p-2.5"
+                    className="w-full border border-slate-300 rounded-xl p-2.5 text-slate-900 font-semibold bg-white"
                   />
                 </div>
               </div>
@@ -1554,7 +1554,7 @@ export default function DashboardPage() {
                   value={newRoomLocation}
                   onChange={(e) => setNewRoomLocation(e.target.value)}
                   placeholder="อาคารศูนย์ราชการจังหวัดกำแพงเพชร"
-                  className="w-full border border-slate-300 rounded-xl p-2.5"
+                  className="w-full border border-slate-300 rounded-xl p-2.5 text-slate-900 font-semibold bg-white"
                 />
               </div>
 
@@ -1565,7 +1565,7 @@ export default function DashboardPage() {
                   value={newRoomDesc}
                   onChange={(e) => setNewRoomDesc(e.target.value)}
                   placeholder="รายละเอียดเกี่ยวกับอุปกรณ์ อุปกรณ์เชื่อมต่อภาพและเสียง"
-                  className="w-full border border-slate-300 rounded-xl p-2.5"
+                  className="w-full border border-slate-300 rounded-xl p-2.5 text-slate-900 font-semibold bg-white"
                 />
               </div>
 
@@ -1630,7 +1630,7 @@ export default function DashboardPage() {
                   value={userFormPassword}
                   onChange={(e) => setUserFormPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full border border-slate-300 rounded-xl p-2.5"
+                  className="w-full border border-slate-300 rounded-xl p-2.5 text-slate-900 font-semibold bg-white"
                 />
               </div>
 
@@ -1642,7 +1642,7 @@ export default function DashboardPage() {
                   value={userFormFullName}
                   onChange={(e) => setUserFormFullName(e.target.value)}
                   placeholder="นายสมชาย ใจดี"
-                  className="w-full border border-slate-300 rounded-xl p-2.5"
+                  className="w-full border border-slate-300 rounded-xl p-2.5 text-slate-900 font-semibold bg-white"
                 />
               </div>
 
@@ -1653,7 +1653,7 @@ export default function DashboardPage() {
                   value={userFormAgency}
                   onChange={(e) => setUserFormAgency(e.target.value)}
                   placeholder="สำนักงานจังหวัดกำแพงเพชร"
-                  className="w-full border border-slate-300 rounded-xl p-2.5"
+                  className="w-full border border-slate-300 rounded-xl p-2.5 text-slate-900 font-semibold bg-white"
                 />
               </div>
 
@@ -1664,7 +1664,7 @@ export default function DashboardPage() {
                   value={userFormPhone}
                   onChange={(e) => setUserFormPhone(e.target.value)}
                   placeholder="055-123456"
-                  className="w-full border border-slate-300 rounded-xl p-2.5"
+                  className="w-full border border-slate-300 rounded-xl p-2.5 text-slate-900 font-semibold bg-white"
                 />
               </div>
 

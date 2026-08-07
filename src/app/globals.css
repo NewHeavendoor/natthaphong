@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -10,6 +10,29 @@
 
 body {
   font-family: var(--font-sarabun);
-  background-color: #020617;
-  color: #f8fafc;
+  background-color: #f8fafc;
+  color: #0f172a;
+}
+
+/* Force 100% Crisp Visible Text for all Inputs, Selects, Options, and Textareas */
+input, select, textarea {
+  color: #0f172a !important;
+  background-color: #ffffff !important;
+  font-weight: 600 !important;
+}
+
+input::placeholder, textarea::placeholder {
+  color: #64748b !important;
+  font-weight: 400 !important;
+}
+
+select option {
+  color: #0f172a !important;
+  background-color: #ffffff !important;
+  font-weight: 600 !important;
+}
+
+/* High contrast modal and card text */
+.bg-white {
+  color: #0f172a !important;
 }

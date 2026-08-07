@@ -20,9 +20,24 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
         <style>{`
           * { font-family: 'Sarabun', sans-serif !important; }
+          input, select, textarea {
+            color: #0f172a !important;
+            background-color: #ffffff !important;
+            font-weight: 600 !important;
+            border-color: #cbd5e1 !important;
+          }
+          input::placeholder, textarea::placeholder {
+            color: #64748b !important;
+            font-weight: 400 !important;
+          }
+          select option {
+            color: #0f172a !important;
+            background-color: #ffffff !important;
+            font-weight: 600 !important;
+          }
         `}</style>
       </head>
-      <body className="antialiased bg-slate-950 text-slate-100 min-h-screen">
+      <body className="antialiased bg-slate-50 text-slate-900 min-h-screen">
         {children}
       </body>
     </html>
