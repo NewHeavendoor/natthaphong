@@ -1321,47 +1321,47 @@ export default function DashboardPage() {
 
       {/* Booking Form Modal */}
       {showBookingModal && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-6 space-y-6 my-8">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-4">
-              <h3 className="text-xl font-bold text-slate-800 flex items-center">
+        <div className="fixed inset-0 bg-slate-900/75 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-6 space-y-6 my-8 text-slate-950">
+            <div className="flex items-center justify-between border-b border-slate-200 pb-4">
+              <h3 className="text-xl font-extrabold text-slate-950 flex items-center">
                 <PlusCircle className="w-6 h-6 mr-2 text-blue-600" />
                 แบบฟอร์มขอจองห้องประชุม
               </h3>
               <button
                 onClick={() => setShowBookingModal(false)}
-                className="text-slate-400 hover:text-slate-600 text-xl font-bold"
+                className="text-slate-600 hover:text-slate-950 text-2xl font-black p-1"
               >
                 ✕
               </button>
             </div>
 
             {submitError && (
-              <div className="p-4 bg-red-50 text-red-700 rounded-xl text-sm border border-red-200">
+              <div className="p-4 bg-red-50 text-red-950 font-bold rounded-xl text-sm border border-red-300">
                 {submitError}
               </div>
             )}
 
             {submitSuccess && (
-              <div className="p-4 bg-emerald-50 text-emerald-700 rounded-xl text-sm border border-emerald-200">
+              <div className="p-4 bg-emerald-50 text-emerald-950 font-bold rounded-xl text-sm border border-emerald-300">
                 {submitSuccess}
               </div>
             )}
 
             <form onSubmit={handleBookingSubmit} className="space-y-4 text-sm">
               <div>
-                <label className="block font-medium text-slate-700 mb-1">เลือกห้องประชุม *</label>
+                <label className="block font-bold text-slate-950 mb-1 text-sm">เลือกห้องประชุม *</label>
                 <select
                   value={selectedRoom}
                   onChange={(e) => setSelectedRoom(e.target.value)}
-                  className="w-full border border-slate-300 rounded-xl p-2.5 bg-white text-slate-900 font-semibold"
+                  className="w-full border-2 border-slate-300 rounded-xl p-2.5 bg-white text-slate-950 font-bold text-sm"
                   required
                 >
                   {rooms.length === 0 ? (
-                    <option value="">ห้องประชุม 1 (ห้องประชุมใหญ่ ศูนย์ราชการ)</option>
+                    <option value="" className="text-slate-950 font-bold bg-white">ห้องประชุม 1 (ห้องประชุมใหญ่ ศูนย์ราชการ)</option>
                   ) : (
                     rooms.map((r) => (
-                      <option key={r.id} value={r.id}>
+                      <option key={r.id} value={r.id} className="text-slate-950 font-bold bg-white">
                         {r.name} ({r.location || 'อาคารศูนย์ราชการ'}) - ความจุ {r.capacity} คน
                       </option>
                     ))
@@ -1370,122 +1370,122 @@ export default function DashboardPage() {
               </div>
 
               <div>
-                <label className="block font-medium text-slate-700 mb-1">ชื่อหัวข้อประชุม / กิจกรรม *</label>
+                <label className="block font-bold text-slate-950 mb-1 text-sm">ชื่อหัวข้อประชุม / กิจกรรม *</label>
                 <input
                   type="text"
                   required
                   value={bookingTitle}
                   onChange={(e) => setBookingTitle(e.target.value)}
                   placeholder="เช่น การประชุมคณะกรรมการจัดทำแผนพัฒนาจังหวัด"
-                  className="w-full border border-slate-300 rounded-xl p-2.5 text-slate-900 font-semibold bg-white"
+                  className="w-full border-2 border-slate-300 rounded-xl p-2.5 text-slate-950 font-bold bg-white placeholder-slate-500"
                 />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
-                  <label className="block font-medium text-slate-700 mb-1">วันที่จอง *</label>
+                  <label className="block font-bold text-slate-950 mb-1 text-sm">วันที่จอง *</label>
                   <input
                     type="date"
                     required
                     value={bookingDate}
                     onChange={(e) => setBookingDate(e.target.value)}
-                    className="w-full border border-slate-300 rounded-xl p-2.5 text-slate-900 font-semibold bg-white"
+                    className="w-full border-2 border-slate-300 rounded-xl p-2.5 text-slate-950 font-bold bg-white"
                   />
                 </div>
                 <div>
-                  <label className="block font-medium text-slate-700 mb-1">เวลาเริ่ม *</label>
+                  <label className="block font-bold text-slate-950 mb-1 text-sm">เวลาเริ่ม *</label>
                   <input
                     type="time"
                     required
                     value={startTime}
                     onChange={(e) => setStartTime(e.target.value)}
-                    className="w-full border border-slate-300 rounded-xl p-2.5 text-slate-900 font-semibold bg-white"
+                    className="w-full border-2 border-slate-300 rounded-xl p-2.5 text-slate-950 font-bold bg-white"
                   />
                 </div>
                 <div>
-                  <label className="block font-medium text-slate-700 mb-1">เวลาสิ้นสุด *</label>
+                  <label className="block font-bold text-slate-950 mb-1 text-sm">เวลาสิ้นสุด *</label>
                   <input
                     type="time"
                     required
                     value={endTime}
                     onChange={(e) => setEndTime(e.target.value)}
-                    className="w-full border border-slate-300 rounded-xl p-2.5 text-slate-900 font-semibold bg-white"
+                    className="w-full border-2 border-slate-300 rounded-xl p-2.5 text-slate-950 font-bold bg-white"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 <div>
-                  <label className="block font-medium text-slate-700 mb-1">จำนวนผู้เข้าร่วม</label>
+                  <label className="block font-bold text-slate-950 mb-1 text-sm">จำนวนผู้เข้าร่วม</label>
                   <input
                     type="number"
                     value={attendeesCount}
                     onChange={(e) => setAttendeesCount(Number(e.target.value))}
-                    className="w-full border border-slate-300 rounded-xl p-2"
+                    className="w-full border-2 border-slate-300 rounded-xl p-2 text-slate-950 font-bold bg-white"
                   />
                 </div>
                 <div>
-                  <label className="block font-medium text-slate-700 mb-1">จำนวนเก้าอี้</label>
+                  <label className="block font-bold text-slate-950 mb-1 text-sm">จำนวนเก้าอี้</label>
                   <input
                     type="number"
                     value={chairsCount}
                     onChange={(e) => setChairsCount(Number(e.target.value))}
-                    className="w-full border border-slate-300 rounded-xl p-2"
+                    className="w-full border-2 border-slate-300 rounded-xl p-2 text-slate-950 font-bold bg-white"
                   />
                 </div>
                 <div>
-                  <label className="block font-medium text-slate-700 mb-1">จำนวนโต๊ะ</label>
+                  <label className="block font-bold text-slate-950 mb-1 text-sm">จำนวนโต๊ะ</label>
                   <input
                     type="number"
                     value={tablesCount}
                     onChange={(e) => setTablesCount(Number(e.target.value))}
-                    className="w-full border border-slate-300 rounded-xl p-2"
+                    className="w-full border-2 border-slate-300 rounded-xl p-2 text-slate-950 font-bold bg-white"
                   />
                 </div>
                 <div>
-                  <label className="block font-medium text-slate-700 mb-1">ไมโครโฟน</label>
+                  <label className="block font-bold text-slate-950 mb-1 text-sm">ไมโครโฟน</label>
                   <input
                     type="number"
                     value={micsCount}
                     onChange={(e) => setMicsCount(Number(e.target.value))}
-                    className="w-full border border-slate-300 rounded-xl p-2"
+                    className="w-full border-2 border-slate-300 rounded-xl p-2 text-slate-950 font-bold bg-white"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block font-medium text-slate-700 mb-1">รายชื่อ VIP / ประธานในพิธี</label>
+                <label className="block font-bold text-slate-950 mb-1 text-sm">รายชื่อ VIP / ประธานในพิธี</label>
                 <input
                   type="text"
                   value={vipList}
                   onChange={(e) => setVipList(e.target.value)}
                   placeholder="เช่น ผู้ว่าราชการจังหวัดกำแพงเพชร"
-                  className="w-full border border-slate-300 rounded-xl p-2.5 text-slate-900 font-semibold bg-white"
+                  className="w-full border-2 border-slate-300 rounded-xl p-2.5 text-slate-950 font-bold bg-white placeholder-slate-500"
                 />
               </div>
 
               <div>
-                <label className="block font-medium text-slate-700 mb-1">หมายเหตุเพิ่มเติม</label>
+                <label className="block font-bold text-slate-950 mb-1 text-sm">หมายเหตุเพิ่มเติม</label>
                 <textarea
                   rows={2}
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   placeholder="ระบุความต้องการการจัดห้องหรืออุปกรณ์เพิ่มเติม"
-                  className="w-full border border-slate-300 rounded-xl p-2.5 text-slate-900 font-semibold bg-white"
+                  className="w-full border-2 border-slate-300 rounded-xl p-2.5 text-slate-950 font-bold bg-white placeholder-slate-500"
                 />
               </div>
 
-              <div className="flex justify-end space-x-3 pt-4 border-t border-slate-100">
+              <div className="flex justify-end space-x-3 pt-4 border-t border-slate-200">
                 <button
                   type="button"
                   onClick={() => setShowBookingModal(false)}
-                  className="px-5 py-2.5 border border-slate-300 rounded-xl text-slate-700 font-medium hover:bg-slate-100 transition"
+                  className="px-5 py-2.5 border-2 border-slate-300 rounded-xl text-slate-900 font-bold hover:bg-slate-100 transition"
                 >
                   ยกเลิก
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl shadow transition"
+                  className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow transition"
                 >
                   ยื่นคำขอจองห้องประชุม
                 </button>
