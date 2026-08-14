@@ -1895,13 +1895,24 @@ async function exportDashboardAsImage() {
     if (curP.page.offsetHeight > MAX_PAGE_HEIGHT && curP.tbody.children.length > 1) {
       curP.tbody.removeChild(rowEl);
 
+      // Check if previous row in curP.tbody is an exec-hdr (meaning it was left alone without any items below it)
+      var orphanHdr = null;
+      var lastInCur = curP.tbody.lastElementChild;
+      if (lastInCur && lastInCur.classList.contains('exec-hdr')) {
+        orphanHdr = lastInCur;
+        curP.tbody.removeChild(orphanHdr);
+      }
+
       // Start new page (Page 2+)
       curP = createPageEl(false);
       container.appendChild(curP.page);
       pageList.push(curP);
 
-      // If moving an item row (not an exec-hdr), add continuation header
-      if (!rowEl.classList.contains('exec-hdr') && lastExecTitle) {
+      if (orphanHdr) {
+        // If we moved an orphan header, add it cleanly to the top of the new page (without "(ต่อ)")
+        curP.tbody.appendChild(orphanHdr);
+      } else if (!rowEl.classList.contains('exec-hdr') && lastExecTitle) {
+        // If this executive was split across pages, add continuation header with "(ต่อ)"
         var contHdr = document.createElement('tr');
         contHdr.className = 'exec-hdr';
         contHdr.style.cssText = 'background:#37474F!important;color:#fff!important;font-size:10pt!important;font-weight:700;text-align:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;height:auto!important;';
