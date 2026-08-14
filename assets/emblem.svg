@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="100" height="100">
+  <defs>
+    <radialGradient id="bgGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FFF59D"/>
+      <stop offset="70%" stop-color="#FBC02D"/>
+      <stop offset="100%" stop-color="#F57F17"/>
+    </radialGradient>
+    <radialGradient id="redGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#D32F2F"/>
+      <stop offset="80%" stop-color="#B71C1C"/>
+      <stop offset="100%" stop-color="#880E4F"/>
+    </radialGradient>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFE082"/>
+      <stop offset="50%" stop-color="#FFB300"/>
+      <stop offset="100%" stop-color="#FF6F00"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+
+  <!-- Outer Yellow Circle -->
+  <circle cx="100" cy="100" r="96" fill="url(#bgGrad)" stroke="#B71C1C" stroke-width="4"/>
+
+  <!-- Outer Decorative Dots Ring -->
+  <circle cx="100" cy="100" r="88" fill="none" stroke="#880E4F" stroke-width="1.5" stroke-dasharray="3,3"/>
+
+  <!-- Inner Red Circle -->
+  <circle cx="100" cy="100" r="78" fill="url(#redGrad)" stroke="#FFD54F" stroke-width="3" filter="url(#shadow)"/>
+
+  <!-- Inner Ornate Border -->
+  <circle cx="100" cy="100" r="72" fill="none" stroke="#FFE082" stroke-width="1" stroke-dasharray="4,2"/>
+
+  <!-- Central Emblem: Kamphaeng Phet City Wall & Pagodas -->
+  <g filter="url(#shadow)">
+    <!-- Base Wall -->
+    <path d="M 45 138 L 155 138 L 150 148 L 50 148 Z" fill="url(#goldGrad)" stroke="#5D4037" stroke-width="1"/>
+    
+    <!-- City Wall Battlements (กำแพงเมือง) -->
+    <path d="M 48 118 L 152 118 L 152 138 L 48 138 Z" fill="url(#goldGrad)" stroke="#5D4037" stroke-width="1.5"/>
+    <path d="M 52 110 L 60 110 L 60 118 L 52 118 Z 
+             M 66 110 L 74 110 L 74 118 L 66 118 Z
+             M 80 110 L 88 110 L 88 118 L 80 118 Z
+             M 94 110 L 106 110 L 106 118 L 94 118 Z
+             M 112 110 L 120 110 L 120 118 L 112 118 Z
+             M 126 110 L 134 110 L 134 118 L 126 118 Z
+             M 140 110 L 148 110 L 148 118 L 140 118 Z" fill="url(#goldGrad)" stroke="#5D4037" stroke-width="1"/>
+
+    <!-- Central Main Stupa / Chedi (เจดีย์) -->
+    <!-- Base -->
+    <path d="M 78 110 L 122 110 L 118 95 L 82 95 Z" fill="url(#goldGrad)" stroke="#4E342E" stroke-width="1"/>
+    <!-- Tiered rings -->
+    <rect x="84" y="87" width="32" height="8" rx="1" fill="url(#goldGrad)" stroke="#4E342E" stroke-width="1"/>
+    <rect x="88" y="80" width="24" height="7" rx="1" fill="url(#goldGrad)" stroke="#4E342E" stroke-width="1"/>
+    <!-- Bell shape (องค์ระฆัง) -->
+    <path d="M 90 80 C 90 68 110 68 110 80 Z" fill="url(#goldGrad)" stroke="#4E342E" stroke-width="1"/>
+    <!-- Spire (ปลียอด) -->
+    <polygon points="100,42 96,68 104,68" fill="url(#goldGrad)" stroke="#4E342E" stroke-width="1"/>
+    <!-- Top Finial (หยดน้ำพุ่มข้าวบิณฑ์) -->
+    <circle cx="100" cy="40" r="3.5" fill="#FFF8E1" stroke="#FF6F00" stroke-width="1"/>
+
+    <!-- Left Flanking Chedi -->
+    <path d="M 54 110 L 72 110 L 70 100 L 56 100 Z" fill="url(#goldGrad)" stroke="#4E342E" stroke-width="0.8"/>
+    <rect x="58" y="94" width="12" height="6" fill="url(#goldGrad)" stroke="#4E342E" stroke-width="0.8"/>
+    <polygon points="64,68 60,94 68,94" fill="url(#goldGrad)" stroke="#4E342E" stroke-width="0.8"/>
+
+    <!-- Right Flanking Chedi -->
+    <path d="M 128 110 L 146 110 L 144 100 L 130 100 Z" fill="url(#goldGrad)" stroke="#4E342E" stroke-width="0.8"/>
+    <rect x="130" y="94" width="12" height="6" fill="url(#goldGrad)" stroke="#4E342E" stroke-width="0.8"/>
+    <polygon points="136,68 132,94 140,94" fill="url(#goldGrad)" stroke="#4E342E" stroke-width="0.8"/>
+  </g>
+
+  <!-- Circular Thai Text on Top Inner Arc -->
+  <path id="textArcTop" d="M 30 100 A 70 70 0 0 1 170 100" fill="none"/>
+  <text font-family="Sarabun, sans-serif" font-size="11" font-weight="bold" fill="#FFE082" text-anchor="middle">
+    <textPath href="#textArcTop" startOffset="50%">จังหวัดกำแพงเพชร</textPath>
+  </text>
+</svg>

@@ -1,0 +1,5 @@
+node_modules/
+scratch/
+*.log
+index_backup_pre_auth.html
+restore_from_stable.ps1
