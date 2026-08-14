@@ -1771,241 +1771,144 @@ async function exportDashboardAsImage() {
     return;
   }
 
-  toast('⏳ กำลังประมวลผลสร้างรูปภาพวาระงาน...', 'info');
-
-  var isGuest = !AUTH.role;
-  var targetDate = S.date;
-  var titleText = S.title.trim() ? fmt(S.title.trim()) : thaiDate(targetDate);
-  var footerText = fmt('กลุ่มงานอำนวยการ สำนักงานจังหวัดกำแพงเพชร โทร 0-5570-5004 โทร(มท.) 16120');
-
-  // Filter rows for current date
-  var dateRows = S.rows.filter(function(r){
-    if (r.date !== targetDate) return false;
-    if (isGuest && r.status !== 'approved' && r.status) return false;
-    return true;
-  });
-
-  // Group by executive
-  var execGroups = [];
-  S.execs.forEach(function(ex){
-    var er = dateRows.filter(function(r){ return r.execId === ex.id; });
-    er.sort(function(a,b){ return (a.time||'').localeCompare(b.time||''); });
-    execGroups.push({ exec: ex, rows: er });
-  });
-
-  // Create temporary offscreen container for measurement and canvas conversion
-  var container = document.createElement('div');
-  container.id = 'exportStagingContainer';
-  container.style.cssText = 'position:fixed;left:-9999px;top:0;width:297mm;background:#fff;z-index:-9999;visibility:hidden;font-family:var(--font-doc);';
-  document.body.appendChild(container);
-
-  // Helper to create a new A4 Landscape page element
-  function createPageEl(pageNum) {
-    var page = document.createElement('div');
-    page.className = 'print-page export-page-item';
-    page.style.cssText = 'width:297mm;min-height:210mm;height:210mm;padding:8mm 14mm;box-sizing:border-box;background:#FFFFFF;color:#111;font-family:var(--font-doc);display:flex;flex-direction:column;justify-content:space-between;margin:0 auto;overflow:hidden;position:relative;';
-
-    // Header
-    var hdr = document.createElement('div');
-    hdr.className = 'doc-header';
-    hdr.style.cssText = 'display:flex;align-items:center;justify-content:center;gap:14px;padding-bottom:5px;margin-bottom:5px;border-bottom:2px solid #E91E8C;';
-    hdr.innerHTML = '<img src="assets/emblem.png" onerror="this.onerror=null;this.src=\'assets/emblem.svg\';" alt="ตรากำแพงเพชร" class="doc-emblem" style="width:48px;height:48px;border-radius:50%;border:2px solid #C8961A;padding:2px;object-fit:contain;background:white;flex-shrink:0;">' +
-      '<div class="doc-title-block" style="text-align:center;">' +
-      '<h2 class="doc-title" style="font-size:15pt;font-weight:800;color:#1A1A2E;line-height:1.25;font-family:var(--font-doc);margin:0;">วาระงานผู้บริหารจังหวัดกำแพงเพชร&nbsp;<span class="doc-date" style="color:#1A1A2E;">' + titleText + (pageNum > 1 ? ' (หน้าที่ ' + pageNum + ')' : '') + '</span></h2>' +
-      '</div>';
-    page.appendChild(hdr);
-
-    // Table container
-    var tblWrap = document.createElement('div');
-    tblWrap.style.cssText = 'flex:1;display:flex;flex-direction:column;justify-content:flex-start;overflow:hidden;';
-
-    var tbl = document.createElement('table');
-    tbl.className = 'sched-table';
-    tbl.style.cssText = 'width:100%;border-collapse:collapse;table-layout:fixed;font-family:var(--font-doc);';
-    tbl.innerHTML = '<thead><tr class="head-row" style="background:#E91E8C;color:#fff;font-size:calc(var(--doc-size) + 0.5pt);font-weight:700;text-align:center;">' +
-      '<th style="width:11%;border:1px solid #444;padding:var(--doc-pad-v) var(--doc-pad-h);text-align:center;">เวลา</th>' +
-      '<th style="width:45%;border:1px solid #444;padding:var(--doc-pad-v) var(--doc-pad-h);text-align:center;">รายการปฏิบัติราชการ</th>' +
-      '<th style="width:32%;border:1px solid #444;padding:var(--doc-pad-v) var(--doc-pad-h);text-align:center;">สถานที่ / การแต่งกาย</th>' +
-      '<th style="width:12%;border:1px solid #444;padding:var(--doc-pad-v) var(--doc-pad-h);text-align:center;">หน่วยงาน</th>' +
-      '</tr></thead><tbody class="export-tbody"></tbody>';
-
-    tblWrap.appendChild(tbl);
-    page.appendChild(tblWrap);
-
-    // Footer
-    var ftr = document.createElement('div');
-    ftr.className = 'doc-footer';
-    ftr.style.cssText = 'margin-top:auto;padding-top:4px;';
-    ftr.innerHTML = '<div class="footer-bar" style="background:linear-gradient(90deg,#FDD835 0%,#F9A825 22%,#0288D1 58%,#01579B 100%);padding:5px 12px;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,.15);border-radius:2px;">' +
-      '<span class="footer-txt" style="font-weight:700;color:#000;font-size:10.5pt;font-family:var(--font-doc);letter-spacing:.3px;text-align:center;">' + footerText + '</span>' +
-      '</div>';
-    page.appendChild(ftr);
-
-    return page;
-  }
-
-  // Row generation helpers
-  function makeExecHdrRow(ex, isCont) {
-    var tr = document.createElement('tr');
-    tr.className = 'exec-hdr';
-    tr.style.cssText = 'background:#37474F;color:#fff;font-size:calc(var(--doc-size) + 0.5pt);font-weight:700;text-align:center;';
-    var td = document.createElement('td');
-    td.colSpan = 4;
-    td.style.cssText = 'padding:4px 8px;border:1px solid #444;text-align:center;letter-spacing:.3px;';
-    td.textContent = ex.name + ' – ' + ex.title + (isCont ? ' (ต่อ)' : '');
-    tr.appendChild(td);
-    return tr;
-  }
-
-  function makeItemRow(r) {
-    var tr = document.createElement('tr');
-    var cellStyle = 'border:1px solid #444;padding:var(--doc-pad-v) var(--doc-pad-h);vertical-align:top;font-family:var(--font-doc);font-size:var(--doc-size);word-break:keep-all;line-break:strict;overflow-wrap:break-word;white-space:normal;';
-
-    // Time
-    var tdTime = document.createElement('td');
-    tdTime.style.cssText = cellStyle + 'text-align:center;vertical-align:middle;white-space:nowrap;width:11%;';
-    tdTime.textContent = fmt(r.time || '-');
-    tr.appendChild(tdTime);
-
-    // Detail
-    var tdDet = document.createElement('td');
-    tdDet.style.cssText = cellStyle + 'line-height:1.5;width:45%;';
-    var buls = (r.detail || '-').split('\n').map(function(s){return s.trim();}).filter(Boolean);
-    if (!buls.length) tdDet.textContent = '-';
-    else {
-      buls.forEach(function(b){
-        var d = document.createElement('span');
-        d.className = 'bul';
-        d.style.cssText = 'display:block;word-break:keep-all;line-break:strict;overflow-wrap:break-word;white-space:normal;';
-        d.textContent = fmt(b);
-        tdDet.appendChild(d);
-      });
-    }
-    tr.appendChild(tdDet);
-
-    // Location / Dress
-    var tdLoc = document.createElement('td');
-    tdLoc.style.cssText = cellStyle + 'line-height:1.5;width:32%;';
-    var locs = (r.location || r.venue || '-').split('\n').map(function(s){return s.trim();}).filter(Boolean);
-    if (!locs.length) tdLoc.textContent = '-';
-    else {
-      locs.forEach(function(l){
-        var d = document.createElement('span');
-        d.className = 'bul';
-        d.style.cssText = 'display:block;word-break:keep-all;line-break:strict;overflow-wrap:break-word;white-space:normal;';
-        d.textContent = fmt(l);
-        tdLoc.appendChild(d);
-      });
-    }
-    tr.appendChild(tdLoc);
-
-    // Dept
-    var tdDept = document.createElement('td');
-    tdDept.style.cssText = cellStyle + 'text-align:center;vertical-align:middle;width:12%;';
-    tdDept.textContent = fmt(r.dept || '-');
-    tr.appendChild(tdDept);
-
-    return tr;
-  }
-
-  function makeEmptyRow() {
-    var tr = document.createElement('tr');
-    tr.className = 'empty-row';
-    tr.style.cssText = 'color:#999;font-style:italic;text-align:center;font-size:calc(var(--doc-size) - 1pt);';
-    var td = document.createElement('td');
-    td.colSpan = 4;
-    td.style.cssText = 'padding:5px;border:1px solid #444;text-align:center;';
-    td.textContent = 'ไม่มีวาระงาน';
-    tr.appendChild(td);
-    return tr;
-  }
-
-  // Max usable height of page (px at 96 DPI: A4 Landscape 210mm ≈ 793px)
-  var MAX_PAGE_HEIGHT = 793;
-  var pages = [];
-  var currentPage = createPageEl(1);
-  container.appendChild(currentPage);
-  pages.push(currentPage);
-  var currentTbody = currentPage.querySelector('.export-tbody');
-
-  // Populate rows into pages
-  execGroups.forEach(function(g){
-    var exHdr = makeExecHdrRow(g.exec, false);
-    currentTbody.appendChild(exHdr);
-
-    // Check overflow
-    if (currentPage.scrollHeight > MAX_PAGE_HEIGHT && currentTbody.children.length > 1) {
-      currentTbody.removeChild(exHdr);
-      currentPage = createPageEl(pages.length + 1);
-      container.appendChild(currentPage);
-      pages.push(currentPage);
-      currentTbody = currentPage.querySelector('.export-tbody');
-      exHdr = makeExecHdrRow(g.exec, false);
-      currentTbody.appendChild(exHdr);
-    }
-
-    if (!g.rows.length) {
-      var emp = makeEmptyRow();
-      currentTbody.appendChild(emp);
-      if (currentPage.scrollHeight > MAX_PAGE_HEIGHT && currentTbody.children.length > 1) {
-        currentTbody.removeChild(emp);
-        currentTbody.removeChild(exHdr);
-        currentPage = createPageEl(pages.length + 1);
-        container.appendChild(currentPage);
-        pages.push(currentPage);
-        currentTbody = currentPage.querySelector('.export-tbody');
-        currentTbody.appendChild(makeExecHdrRow(g.exec, false));
-        currentTbody.appendChild(emp);
-      }
-    } else {
-      g.rows.forEach(function(r){
-        var itemRow = makeItemRow(r);
-        currentTbody.appendChild(itemRow);
-        if (currentPage.scrollHeight > MAX_PAGE_HEIGHT && currentTbody.children.length > 1) {
-          currentTbody.removeChild(itemRow);
-          currentPage = createPageEl(pages.length + 1);
-          container.appendChild(currentPage);
-          pages.push(currentPage);
-          currentTbody = currentPage.querySelector('.export-tbody');
-          // Add continuation header
-          currentTbody.appendChild(makeExecHdrRow(g.exec, true));
-          currentTbody.appendChild(itemRow);
-        }
-      });
-    }
-  });
-
-  // Render all pages to canvas
-  exportedImages = [];
-  try {
-    for (var i = 0; i < pages.length; i++) {
-      var canvas = await html2canvas(pages[i], {
-        scale: 2,
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: '#ffffff',
-        logging: false
-      });
-      exportedImages.push({
-        pageNum: i + 1,
-        total: pages.length,
-        dataUrl: canvas.toDataURL('image/png'),
-        date: targetDate
-      });
-    }
-  } catch (err) {
-    console.error('Error generating canvas:', err);
-    toast('เกิดข้อผิดพลาดในการสร้างรูปภาพ: ' + err.message, 'error');
-    if (container.parentNode) container.parentNode.removeChild(container);
+  var printPage = document.getElementById('printPage');
+  if (!printPage) {
+    toast('ไม่พบตารางวาระงานสำหรับบันทึกภาพ', 'warn');
     return;
   }
 
-  // Cleanup staging container
-  if (container.parentNode) container.parentNode.removeChild(container);
+  toast('⏳ กำลังสร้างรูปภาพความละเอียดสูง...', 'info');
 
-  // Show result modal
+  // 1. Save original styles and temporarily adjust for clean desktop A4 capture
+  var origStyle = printPage.getAttribute('style') || '';
+  var rowActs = printPage.querySelectorAll('.row-acts');
+  rowActs.forEach(function(el){ el.style.setProperty('display', 'none', 'important'); });
+
+  // Ensure standard A4 desktop width for consistent typography and layout
+  printPage.style.width = '297mm';
+  printPage.style.minWidth = '297mm';
+  printPage.style.maxWidth = '297mm';
+  printPage.style.boxSizing = 'border-box';
+
+  var masterCanvas;
+  try {
+    masterCanvas = await html2canvas(printPage, {
+      scale: 2,
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: '#ffffff',
+      logging: false,
+      windowWidth: 1280
+    });
+  } catch (err) {
+    console.error('html2canvas error:', err);
+    toast('เกิดข้อผิดพลาดในการสร้างรูปภาพ: ' + err.message, 'error');
+    printPage.setAttribute('style', origStyle);
+    rowActs.forEach(function(el){ el.style.display = ''; });
+    return;
+  }
+
+  // Restore DOM styles immediately after capture
+  printPage.setAttribute('style', origStyle);
+  rowActs.forEach(function(el){ el.style.display = ''; });
+
+  if (!masterCanvas || masterCanvas.width === 0 || masterCanvas.height === 0) {
+    toast('ไม่สามารถสร้างรูปภาพได้ กรุณาลองใหม่อีกครั้ง', 'error');
+    return;
+  }
+
+  var W = masterCanvas.width;
+  var H = masterCanvas.height;
+  // A4 Landscape ratio: 297mm x 210mm -> height = width * 210 / 297
+  var A4_HEIGHT = Math.round(W * (210 / 297));
+
+  // Find row bottom positions relative to printPage top in canvas coordinates
+  var pageRect = printPage.getBoundingClientRect();
+  var rows = printPage.querySelectorAll('tbody tr');
+  var rowBottoms = [];
+
+  rows.forEach(function(r){
+    var rRect = r.getBoundingClientRect();
+    var bY = Math.round((rRect.bottom - pageRect.top) * (H / pageRect.height));
+    if (bY > 0 && bY <= H) {
+      rowBottoms.push(bY);
+    }
+  });
+  if (!rowBottoms.includes(H)) rowBottoms.push(H);
+
+  exportedImages = [];
+
+  // Case 1: Fits in 1 single A4 Landscape page
+  if (H <= A4_HEIGHT * 1.05) {
+    var pCanvas = document.createElement('canvas');
+    pCanvas.width = W;
+    pCanvas.height = Math.max(H, A4_HEIGHT);
+    var ctx = pCanvas.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, pCanvas.width, pCanvas.height);
+    ctx.drawImage(masterCanvas, 0, 0);
+
+    exportedImages.push({
+      pageNum: 1,
+      total: 1,
+      dataUrl: pCanvas.toDataURL('image/png'),
+      date: S.date
+    });
+  } else {
+    // Case 2: Multi-page (2+ A4 Landscape pages)
+    var currentStartY = 0;
+    var pageIndex = 1;
+
+    while (currentStartY < H) {
+      var targetCutY = currentStartY + A4_HEIGHT;
+      var chosenCutY = H;
+
+      if (targetCutY < H) {
+        // Find row break closest to targetCutY without cutting rows in half
+        var validBreaks = rowBottoms.filter(function(y){ return y > currentStartY && y <= targetCutY; });
+        if (validBreaks.length > 0) {
+          chosenCutY = validBreaks[validBreaks.length - 1];
+        } else {
+          chosenCutY = targetCutY;
+        }
+      }
+
+      var sliceHeight = chosenCutY - currentStartY;
+      if (sliceHeight <= 0) break;
+
+      var pCanvas = document.createElement('canvas');
+      pCanvas.width = W;
+      pCanvas.height = A4_HEIGHT;
+      var ctx = pCanvas.getContext('2d');
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, pCanvas.width, pCanvas.height);
+
+      // Draw the sliced section from master canvas onto the top of the A4 canvas
+      ctx.drawImage(
+        masterCanvas,
+        0, currentStartY, W, sliceHeight, // source rectangle
+        0, 0, W, sliceHeight             // destination rectangle
+      );
+
+      exportedImages.push({
+        pageNum: pageIndex,
+        total: 0, // will set total below
+        dataUrl: pCanvas.toDataURL('image/png'),
+        date: S.date
+      });
+
+      currentStartY = chosenCutY;
+      pageIndex++;
+    }
+
+    var totalPages = exportedImages.length;
+    exportedImages.forEach(function(item){ item.total = totalPages; });
+  }
+
+  // Open modal and show previews
   renderExportModal();
 }
+
 
 function renderExportModal() {
   var m = document.getElementById('mExportImg');
