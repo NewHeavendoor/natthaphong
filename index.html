@@ -1761,7 +1761,7 @@ document.getElementById('btnClear').addEventListener('click',function(){
 });
 
 /* ============================================================
-   EXPORT DASHBOARD AS IMAGE (Multi-page A4 Landscape)
+   EXPORT DASHBOARD AS IMAGE (Multi-page A4 Landscape - Exact Print Replica)
 ============================================================ */
 var exportedImages = [];
 
@@ -1793,65 +1793,67 @@ async function exportDashboardAsImage() {
     execGroups.push({ exec: ex, rows: er });
   });
 
-  // Create temporary offscreen container for measurement and canvas conversion
+  // Create staging container visible to html2canvas behind main view
   var container = document.createElement('div');
   container.id = 'exportStagingContainer';
-  container.style.cssText = 'position:fixed;left:-9999px;top:0;width:297mm;background:#fff;z-index:-9999;visibility:hidden;font-family:var(--font-doc);';
+  container.style.cssText = 'position:fixed;left:0;top:0;width:297mm;background:#ffffff;z-index:-999;opacity:1;pointer-events:none;font-family:var(--font-doc);';
   document.body.appendChild(container);
 
-  // Helper to create a new A4 Landscape page element
-  function createPageEl(pageNum) {
+  var cellStyle = 'border:1px solid #444!important;padding:2px 4px!important;vertical-align:top;font-family:var(--font-doc);font-size:9.5pt!important;word-break:keep-all!important;line-break:strict!important;overflow-wrap:break-word!important;white-space:normal!important;';
+
+  function createHeaderHtml() {
+    return '<div class="doc-header" style="display:flex;align-items:center;justify-content:center;gap:12px;padding-bottom:3px;margin-bottom:3px;border-bottom:2px solid #E91E8C;-webkit-print-color-adjust:exact;print-color-adjust:exact;">' +
+      '<img src="assets/emblem.png" onerror="this.onerror=null;this.src=\'assets/emblem.svg\';" alt="ตรากำแพงเพชร" class="doc-emblem" style="width:44px;height:44px;border-radius:50%;border:2px solid #C8961A;padding:2px;object-fit:contain;background:white;flex-shrink:0;">' +
+      '<div class="doc-title-block" style="text-align:center;">' +
+      '<h2 class="doc-title" style="font-size:13pt;font-weight:800;color:#1A1A2E;line-height:1.25;font-family:var(--font-doc);margin:0;">วาระงานผู้บริหารจังหวัดกำแพงเพชร&nbsp;<span class="doc-date" style="color:#1A1A2E;">' + titleText + '</span></h2>' +
+      '</div></div>';
+  }
+
+  function createTheadHtml() {
+    return '<thead><tr class="head-row" style="background:#E91E8C!important;color:#fff!important;font-size:10pt!important;font-weight:700;text-align:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;">' +
+      '<th style="width:11%;border:1px solid #444!important;padding:2px 4px!important;text-align:center;">เวลา</th>' +
+      '<th style="width:45%;border:1px solid #444!important;padding:2px 4px!important;text-align:center;">รายการปฏิบัติราชการ</th>' +
+      '<th style="width:32%;border:1px solid #444!important;padding:2px 4px!important;text-align:center;">สถานที่ / การแต่งกาย</th>' +
+      '<th style="width:12%;border:1px solid #444!important;padding:2px 4px!important;text-align:center;">หน่วยงาน</th>' +
+      '</tr></thead>';
+  }
+
+  function createFooterEl() {
+    var ftr = document.createElement('div');
+    ftr.className = 'doc-footer';
+    ftr.style.cssText = 'margin-top:auto;padding-top:3px;';
+    ftr.innerHTML = '<div class="footer-bar" style="background:linear-gradient(90deg,#FDD835 0%,#F9A825 22%,#0288D1 58%,#01579B 100%)!important;padding:5px 12px;display:flex;align-items:center;justify-content:center;border-radius:2px;-webkit-print-color-adjust:exact;print-color-adjust:exact;">' +
+      '<span class="footer-txt" style="font-weight:700;color:#000!important;font-size:11pt!important;font-family:var(--font-doc);letter-spacing:.3px;text-align:center;">' + footerText + '</span>' +
+      '</div>';
+    return ftr;
+  }
+
+  // Create page element without fixed height during measurement
+  function createPageEl(isFirstPage) {
     var page = document.createElement('div');
     page.className = 'print-page export-page-item';
-    page.style.cssText = 'width:297mm;min-height:210mm;height:210mm;padding:8mm 14mm;box-sizing:border-box;background:#FFFFFF;color:#111;font-family:var(--font-doc);display:flex;flex-direction:column;justify-content:space-between;margin:0 auto;overflow:hidden;position:relative;';
+    page.style.cssText = 'width:297mm;box-sizing:border-box;padding:8mm 10mm;background:#FFFFFF;color:#111;font-family:var(--font-doc);display:flex;flex-direction:column;justify-content:flex-start;margin:0 auto;position:relative;--doc-size:9.5pt;--doc-pad-v:2px;--doc-pad-h:4px;';
 
-    // Header
-    var hdr = document.createElement('div');
-    hdr.className = 'doc-header';
-    hdr.style.cssText = 'display:flex;align-items:center;justify-content:center;gap:14px;padding-bottom:5px;margin-bottom:5px;border-bottom:2px solid #E91E8C;';
-    hdr.innerHTML = '<img src="assets/emblem.png" onerror="this.onerror=null;this.src=\'assets/emblem.svg\';" alt="ตรากำแพงเพชร" class="doc-emblem" style="width:48px;height:48px;border-radius:50%;border:2px solid #C8961A;padding:2px;object-fit:contain;background:white;flex-shrink:0;">' +
-      '<div class="doc-title-block" style="text-align:center;">' +
-      '<h2 class="doc-title" style="font-size:15pt;font-weight:800;color:#1A1A2E;line-height:1.25;font-family:var(--font-doc);margin:0;">วาระงานผู้บริหารจังหวัดกำแพงเพชร&nbsp;<span class="doc-date" style="color:#1A1A2E;">' + titleText + (pageNum > 1 ? ' (หน้าที่ ' + pageNum + ')' : '') + '</span></h2>' +
-      '</div>';
-    page.appendChild(hdr);
-
-    // Table container
-    var tblWrap = document.createElement('div');
-    tblWrap.style.cssText = 'flex:1;display:flex;flex-direction:column;justify-content:flex-start;overflow:hidden;';
+    if (isFirstPage) {
+      page.innerHTML = createHeaderHtml();
+    }
 
     var tbl = document.createElement('table');
     tbl.className = 'sched-table';
-    tbl.style.cssText = 'width:100%;border-collapse:collapse;table-layout:fixed;font-family:var(--font-doc);';
-    tbl.innerHTML = '<thead><tr class="head-row" style="background:#E91E8C;color:#fff;font-size:calc(var(--doc-size) + 0.5pt);font-weight:700;text-align:center;">' +
-      '<th style="width:11%;border:1px solid #444;padding:var(--doc-pad-v) var(--doc-pad-h);text-align:center;">เวลา</th>' +
-      '<th style="width:45%;border:1px solid #444;padding:var(--doc-pad-v) var(--doc-pad-h);text-align:center;">รายการปฏิบัติราชการ</th>' +
-      '<th style="width:32%;border:1px solid #444;padding:var(--doc-pad-v) var(--doc-pad-h);text-align:center;">สถานที่ / การแต่งกาย</th>' +
-      '<th style="width:12%;border:1px solid #444;padding:var(--doc-pad-v) var(--doc-pad-h);text-align:center;">หน่วยงาน</th>' +
-      '</tr></thead><tbody class="export-tbody"></tbody>';
-
-    tblWrap.appendChild(tbl);
-    page.appendChild(tblWrap);
-
-    // Footer
-    var ftr = document.createElement('div');
-    ftr.className = 'doc-footer';
-    ftr.style.cssText = 'margin-top:auto;padding-top:4px;';
-    ftr.innerHTML = '<div class="footer-bar" style="background:linear-gradient(90deg,#FDD835 0%,#F9A825 22%,#0288D1 58%,#01579B 100%);padding:5px 12px;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,.15);border-radius:2px;">' +
-      '<span class="footer-txt" style="font-weight:700;color:#000;font-size:10.5pt;font-family:var(--font-doc);letter-spacing:.3px;text-align:center;">' + footerText + '</span>' +
-      '</div>';
-    page.appendChild(ftr);
+    tbl.style.cssText = 'width:100%;border-collapse:collapse;table-layout:fixed;font-family:var(--font-doc);font-size:9.5pt;';
+    tbl.innerHTML = createTheadHtml() + '<tbody class="export-tbody"></tbody>';
+    page.appendChild(tbl);
 
     return page;
   }
 
-  // Row generation helpers
   function makeExecHdrRow(ex, isCont) {
     var tr = document.createElement('tr');
     tr.className = 'exec-hdr';
-    tr.style.cssText = 'background:#37474F;color:#fff;font-size:calc(var(--doc-size) + 0.5pt);font-weight:700;text-align:center;';
+    tr.style.cssText = 'background:#37474F!important;color:#fff!important;font-size:10pt!important;font-weight:700;text-align:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;';
     var td = document.createElement('td');
     td.colSpan = 4;
-    td.style.cssText = 'padding:4px 8px;border:1px solid #444;text-align:center;letter-spacing:.3px;';
+    td.style.cssText = 'padding:4px 8px!important;border:1px solid #444!important;text-align:center;letter-spacing:.3px;background:#37474F!important;color:#fff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;';
     td.textContent = ex.name + ' – ' + ex.title + (isCont ? ' (ต่อ)' : '');
     tr.appendChild(td);
     return tr;
@@ -1859,7 +1861,6 @@ async function exportDashboardAsImage() {
 
   function makeItemRow(r) {
     var tr = document.createElement('tr');
-    var cellStyle = 'border:1px solid #444;padding:var(--doc-pad-v) var(--doc-pad-h);vertical-align:top;font-family:var(--font-doc);font-size:var(--doc-size);word-break:keep-all;line-break:strict;overflow-wrap:break-word;white-space:normal;';
 
     // Time
     var tdTime = document.createElement('td');
@@ -1869,14 +1870,14 @@ async function exportDashboardAsImage() {
 
     // Detail
     var tdDet = document.createElement('td');
-    tdDet.style.cssText = cellStyle + 'line-height:1.5;width:45%;';
+    tdDet.style.cssText = cellStyle + 'line-height:1.45;width:45%;';
     var buls = (r.detail || '-').split('\n').map(function(s){return s.trim();}).filter(Boolean);
     if (!buls.length) tdDet.textContent = '-';
     else {
       buls.forEach(function(b){
         var d = document.createElement('span');
         d.className = 'bul';
-        d.style.cssText = 'display:block;word-break:keep-all;line-break:strict;overflow-wrap:break-word;white-space:normal;';
+        d.style.cssText = 'display:block;word-break:keep-all!important;line-break:strict!important;overflow-wrap:break-word!important;white-space:normal!important;';
         d.textContent = fmt(b);
         tdDet.appendChild(d);
       });
@@ -1885,14 +1886,14 @@ async function exportDashboardAsImage() {
 
     // Location / Dress
     var tdLoc = document.createElement('td');
-    tdLoc.style.cssText = cellStyle + 'line-height:1.5;width:32%;';
+    tdLoc.style.cssText = cellStyle + 'line-height:1.45;width:32%;';
     var locs = (r.location || r.venue || '-').split('\n').map(function(s){return s.trim();}).filter(Boolean);
     if (!locs.length) tdLoc.textContent = '-';
     else {
       locs.forEach(function(l){
         var d = document.createElement('span');
         d.className = 'bul';
-        d.style.cssText = 'display:block;word-break:keep-all;line-break:strict;overflow-wrap:break-word;white-space:normal;';
+        d.style.cssText = 'display:block;word-break:keep-all!important;line-break:strict!important;overflow-wrap:break-word!important;white-space:normal!important;';
         d.textContent = fmt(l);
         tdLoc.appendChild(d);
       });
@@ -1911,19 +1912,19 @@ async function exportDashboardAsImage() {
   function makeEmptyRow() {
     var tr = document.createElement('tr');
     tr.className = 'empty-row';
-    tr.style.cssText = 'color:#999;font-style:italic;text-align:center;font-size:calc(var(--doc-size) - 1pt);';
+    tr.style.cssText = 'color:#999;font-style:italic;text-align:center;font-size:8.5pt;';
     var td = document.createElement('td');
     td.colSpan = 4;
-    td.style.cssText = 'padding:5px;border:1px solid #444;text-align:center;';
+    td.style.cssText = 'padding:4px;border:1px solid #444;text-align:center;';
     td.textContent = 'ไม่มีวาระงาน';
     tr.appendChild(td);
     return tr;
   }
 
-  // Max usable height of page (px at 96 DPI: A4 Landscape 210mm ≈ 793px)
-  var MAX_PAGE_HEIGHT = 793;
+  // Max usable height of A4 Landscape page (210mm at 96 DPI ≈ 793.7px)
+  var MAX_PAGE_HEIGHT = 785;
   var pages = [];
-  var currentPage = createPageEl(1);
+  var currentPage = createPageEl(true);
   container.appendChild(currentPage);
   pages.push(currentPage);
   var currentTbody = currentPage.querySelector('.export-tbody');
@@ -1934,9 +1935,9 @@ async function exportDashboardAsImage() {
     currentTbody.appendChild(exHdr);
 
     // Check overflow
-    if (currentPage.scrollHeight > MAX_PAGE_HEIGHT && currentTbody.children.length > 1) {
+    if (currentPage.offsetHeight > MAX_PAGE_HEIGHT && currentTbody.children.length > 1) {
       currentTbody.removeChild(exHdr);
-      currentPage = createPageEl(pages.length + 1);
+      currentPage = createPageEl(false);
       container.appendChild(currentPage);
       pages.push(currentPage);
       currentTbody = currentPage.querySelector('.export-tbody');
@@ -1947,10 +1948,10 @@ async function exportDashboardAsImage() {
     if (!g.rows.length) {
       var emp = makeEmptyRow();
       currentTbody.appendChild(emp);
-      if (currentPage.scrollHeight > MAX_PAGE_HEIGHT && currentTbody.children.length > 1) {
+      if (currentPage.offsetHeight > MAX_PAGE_HEIGHT && currentTbody.children.length > 1) {
         currentTbody.removeChild(emp);
         currentTbody.removeChild(exHdr);
-        currentPage = createPageEl(pages.length + 1);
+        currentPage = createPageEl(false);
         container.appendChild(currentPage);
         pages.push(currentPage);
         currentTbody = currentPage.querySelector('.export-tbody');
@@ -1961,9 +1962,9 @@ async function exportDashboardAsImage() {
       g.rows.forEach(function(r){
         var itemRow = makeItemRow(r);
         currentTbody.appendChild(itemRow);
-        if (currentPage.scrollHeight > MAX_PAGE_HEIGHT && currentTbody.children.length > 1) {
+        if (currentPage.offsetHeight > MAX_PAGE_HEIGHT && currentTbody.children.length > 1) {
           currentTbody.removeChild(itemRow);
-          currentPage = createPageEl(pages.length + 1);
+          currentPage = createPageEl(false);
           container.appendChild(currentPage);
           pages.push(currentPage);
           currentTbody = currentPage.querySelector('.export-tbody');
@@ -1973,6 +1974,30 @@ async function exportDashboardAsImage() {
         }
       });
     }
+  });
+
+  // Attach footer to the last page
+  var lastPage = pages[pages.length - 1];
+  var ftrEl = createFooterEl();
+  lastPage.appendChild(ftrEl);
+
+  if (lastPage.offsetHeight > MAX_PAGE_HEIGHT && lastPage.querySelector('.export-tbody').children.length > 1) {
+    lastPage.removeChild(ftrEl);
+    var extraPage = createPageEl(false);
+    container.appendChild(extraPage);
+    pages.push(extraPage);
+    extraPage.appendChild(ftrEl);
+  }
+
+  // Lock final layout to exact A4 Landscape dimensions
+  pages.forEach(function(p){
+    p.style.height = '210mm';
+    p.style.minHeight = '210mm';
+    p.style.maxHeight = '210mm';
+    p.style.overflow = 'hidden';
+    p.style.display = 'flex';
+    p.style.flexDirection = 'column';
+    p.style.justifyContent = 'flex-start';
   });
 
   // Render all pages to canvas
@@ -2006,6 +2031,7 @@ async function exportDashboardAsImage() {
   // Show result modal
   renderExportModal();
 }
+
 
 function renderExportModal() {
   var m = document.getElementById('mExportImg');
