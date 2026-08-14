@@ -239,9 +239,11 @@ body.guest-mode #userBar{display:none!important;}
   .exec-hdr td{background:#37474F!important;color:#fff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
   .footer-bar{padding:5px 12px!important;background:linear-gradient(90deg,#FDD835 0%,#F9A825 22%,#0288D1 58%,#01579B 100%)!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
   .footer-txt{font-size:11pt!important;}
-  .sched-table{page-break-inside:auto;}
+  .sched-table{page-break-inside:auto;table-layout:fixed!important;width:100%!important;}
   .sched-table tr{page-break-inside:avoid;page-break-after:auto;}
   .exec-hdr{page-break-inside:avoid;page-break-after:avoid;}
+  .col-time{width:11%!important;}.col-detail{width:45%!important;}.col-loc{width:32%!important;}.col-dept{width:12%!important;}
+  .cell-detail,.cell-loc{word-break:keep-all!important;overflow-wrap:break-word!important;line-break:strict!important;white-space:normal!important;}
 }
 </style>
 </head>
@@ -1181,10 +1183,13 @@ function doCopySchedule(){
     status:'pending'
   };
 
+  /* เพิ่มข้อมูล optimistic เข้า S.rows เพื่อแสดงทันที */
+  var optimisticIds=[];
   targets.forEach(function(execId){
+    var oid='cp-'+execId+'-'+Date.now()+'-'+Math.random().toString(36).slice(2,5);
+    optimisticIds.push(oid);
     S.rows.push({
-      id:'cp-'+execId+'-'+Date.now()+'-'+Math.random().toString(36).slice(2,5),
-      execId:execId,date:item.date,time:item.time,detail:item.detail,
+      id:oid,execId:execId,date:item.date,time:item.time,detail:item.detail,
       location:item.venue||item.location||'-',venue:item.venue||item.location||'-',
       dept:item.dept||'-',status:'pending',src:'custom'
     });
@@ -1192,17 +1197,30 @@ function doCopySchedule(){
   lsSave();closeCopyModal();render();
   toast('คัดลอกวาระงานไปยัง '+targets.length+' ท่าน เรียบร้อย ✅');
 
+  /* หลังบันทึก Sheet สำเร็จ ลบ optimistic rows ออกแล้ว syncAll เพื่อดึงข้อมูลจริง */
+  function afterCopySuccess(){
+    S.rows=S.rows.filter(function(r){return optimisticIds.indexOf(r.id)<0;});
+    lsSave();
+    syncAll(false);
+  }
+
   if(isGAS()){
     google.script.run
-      .withSuccessHandler(function(res){if(res&&res.status==='success')syncAll(false);})
-      .withFailureHandler(function(){toast('คัดลอกลง Sheet ไม่สำเร็จ','warn');})
+      .withSuccessHandler(function(res){
+        if(res&&res.status==='success')afterCopySuccess();
+        else toast('คัดลอกลง Sheet ไม่สำเร็จ: '+(res&&res.message||''),'warn');
+      })
+      .withFailureHandler(function(e){toast('คัดลอกลง Sheet ไม่สำเร็จ: '+(e.message||e),'warn');})
       .copySchedule(copyData);
   }else if(S.gasUrl){
     fetch(S.gasUrl,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},
       body:JSON.stringify({action:'copySchedule',data:copyData})})
       .then(function(r){return r.json();})
-      .then(function(j){if(j.status==='success')syncAll(false);})
-      .catch(function(){});
+      .then(function(j){
+        if(j.status==='success')afterCopySuccess();
+        else toast('คัดลอกลง Sheet ไม่สำเร็จ: '+(j.message||''),'warn');
+      })
+      .catch(function(e){toast('คัดลอกลง Sheet ไม่สำเร็จ: '+e.message,'warn');});
   }
 }
 
