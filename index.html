@@ -1979,7 +1979,6 @@ async function exportDashboardAsImage() {
   pageList.push(curP);
 
   // Build rows for all executives
-  var isGuest = !AUTH.role;
   var rowElements = [];
 
   S.execs.forEach(function(ex){
@@ -1992,9 +1991,6 @@ async function exportDashboardAsImage() {
     rowElements.push(hr);
 
     var items = S.rows.filter(function(r){ return r.execId === ex.id && r.date === S.date; });
-    if (isGuest) {
-      items = items.filter(function(r){ return r.status === 'approved'; });
-    }
     items.sort(function(a,b){ return parseTime(a.time) - parseTime(b.time); });
 
     if (!items.length) {
