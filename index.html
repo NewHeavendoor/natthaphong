@@ -808,7 +808,8 @@ function lsLoad(){
   try{
     var r=localStorage.getItem(LS+'rows');
     if(r){try{S.rows=JSON.parse(r);}catch(e){}}
-    var d=localStorage.getItem(LS+'date');   if(d)S.date=d;
+    /* Always default to today's date on entering the web page */
+    S.date=todayISO();
     var t=localStorage.getItem(LS+'title');  if(t!==null)S.title=t;
     var th=localStorage.getItem(LS+'thai');  if(th!==null)S.thai=(th!=='0');
     var g=localStorage.getItem(LS+'gasUrl'); if(g)S.gasUrl=g;
@@ -1131,12 +1132,7 @@ function mergeRows(rows){
   var custom=S.rows.filter(function(r){return r.src==='custom';});
   S.rows=rows.concat(custom);
   lsSave();
-  var dates={};rows.forEach(function(r){if(r.date)dates[r.date]=1;});
-  var dArr=Object.keys(dates).sort();
-  if(dArr.length&&!dates[S.date]){
-    S.date=dArr[dArr.length-1];
-    var sd=document.getElementById('selDate');if(sd)sd.value=S.date;
-  }
+  /* Do not auto-jump S.date to past sheet dates; keep on today's date or user-selected date */
 }
 
 function finishSync(ok,showMsg){
@@ -2250,6 +2246,9 @@ document.addEventListener('keydown',function(e){
 (function(){
   lsLoad();
   loadSession();
+
+  /* Always set default to today's date on entry */
+  S.date = todayISO();
 
   var sd=document.getElementById('selDate');if(sd)sd.value=S.date;
   var tt=document.getElementById('txtTitle');if(tt)tt.value=S.title;
